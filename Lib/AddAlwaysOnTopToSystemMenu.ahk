@@ -3,14 +3,14 @@
 ; AddAlwaysOnTopToSystemMenu(hwnd, Remove := false)
 ;
 ; Description:
-; Adds/Removes an '&Always On Top' menu item followed by a separator above the 'Close' menu item to the system menu.
+; Adds/Removes an '&Always On Top' menu item followed by a separator above the 'Close' menu item to the system menu of a window.
 ;
 ; Author: iPhilip
 ;
 ; Parameters:
-; The hwnd parameter is the handle of the window or an object with the hwnd property.
-; The Remove parameter is a boolean value that determines if the function adds or removes the menu item (and its separator).
-; If not specified, it defaults to false.
+;   - The hwnd parameter is the handle of a window or an object with the hwnd property.
+;   - The Remove parameter is a boolean value that determines if the function adds or removes the menu item (and its separator).
+;     If not specified, it defaults to false.
 ;
 ; Return value:
 ; The function returns true if the item (and separator) is added to the system menu and false if it's removed.
