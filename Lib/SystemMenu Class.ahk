@@ -37,7 +37,8 @@
 ; The MenuItem parameter can be either an integer representing the one-based position of the item,
 ; or the name of the menu item as displayed to the left of the tab character (without the & character).
 ; In other words, the Close menu item ('&Close`tAlt+F4') is simply accessed using the 'Close' string.
-; Note that passing 1 for MenuItem refers to the first menu item while passing '1' refers to the menu item by the name '1'.
+; Note that a value of 1 for MenuItem refers to the first menu item while a value of '1' refers to the menu item by the name '1'.
+; The maximum number of non-standard menu items is 3,839 ((0xF000 - 1) >> 4).
 ; Except for portions of error messages, the class is locale-agnostic.
 ; See the specific property or method below for more details.
 
@@ -121,9 +122,9 @@ class SystemMenu
    
    String[Pos] => this.GetMenuItemName(Pos)
    
-   ; Gets or sets the callback object of the item specified by its one-based position.
-   ; For standard system menu items, separators, or if the item's callback was deleted, the return value of the getter is an empty string.
-   ; If the value associated with the setter is not a callable object, the callback object is deleted.
+   ; Gets or sets the callback object of the item specified by MenuItem.
+   ; For standard system menu items, separators, or if the non-standard menu item's callback was deleted, the return value of the getter is an empty string.
+   ; If the value associated with the setter is not a callable object, the existing callback object is deleted.
    
    Callback[MenuItem]
    {
@@ -273,7 +274,7 @@ class SystemMenu
             OnMessage this.Class.WM_SYSCOMMAND, this.BoundFunc
          
          Flags := this.Class.MF_STRING
-         ID := this.CallbackMap.Count ? Max(this.CallbackMap*) + 1 : 1
+         ID := this.CallbackMap.Count ? Max(this.CallbackMap*) + 0x0010 : 0x0010
          if ID = this.Class.SC_SIZE
             throw Error('Exceeded maximum identifier value.')
          
@@ -310,12 +311,7 @@ class SystemMenu
          if !this.CallbackMap.Count
             OnMessage this.Class.WM_SYSCOMMAND, this.BoundFunc
          
-         ; The menu item ID is one plus the maximum of the existing non-standard menu item IDs or one, if there are none.
-         ; This is more reliable than just setting the menu item ID to the position of the new menu item because,
-         ; if there are existing non-standard menu items and a new menu item is added above them, the menu item ID
-         ; of the existing ones would have to be modified as well.
-         
-         ID := this.CallbackMap.Count ? Max(this.CallbackMap*) + 1 : 1
+         ID := this.CallbackMap.Count ? Max(this.CallbackMap*) + 0x0010 : 0x0010
          if ID = this.Class.SC_SIZE
             throw Error('Exceeded maximum identifier value.')
          this.CallbackMap[ID] := Callback
@@ -544,8 +540,11 @@ class SystemMenu
    
    SysMenuCallback(wParam, lParam, msg, hwnd) {
       Critical
-      if this.CallbackMap.Has(wParam) && hwnd = this.hwnd
-         this.CallbackMap[wParam].Call(this)
+      if hwnd = this.hwnd {
+         ID := wParam & 0xFFF0
+         if this.CallbackMap.Has(ID)
+            this.CallbackMap[ID].Call(this)
+      }
    }
    
    ; Gets the ID of a menu item. The ID of separators is zero.

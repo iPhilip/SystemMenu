@@ -8,9 +8,8 @@
 ; Author: iPhilip
 ;
 ; Parameters:
-;   - The hwnd parameter is the handle of a window or an object with the hwnd property.
-;   - The Remove parameter is a boolean value that determines if the function adds or removes the menu item (and its separator).
-;     If not specified, it defaults to false.
+;   hwnd - handle of a window or an object with the hwnd property.
+;   Remove - boolean value that determines if the function adds or removes the menu item (and its separator). If omitted, it defaults to false.
 ;
 ; Return value:
 ; The function returns true if the item (and separator) is added to the system menu and false if it's removed.
@@ -65,7 +64,7 @@ AddAlwaysOnTopToSystemMenu(hwnd, Remove := false)
    
    ; Get the next ID.
    
-   ID := IDs.Count ? Max(IDs*) + 1 : 1
+   ID := IDs.Count ? Max(IDs*) + 0x0010 : 0x0010
    if ID = SC_SIZE
       throw Error('Exceeded maximum identifier value.')
    IDs[ID] := hMenu
@@ -109,7 +108,8 @@ AddAlwaysOnTopToSystemMenu(hwnd, Remove := false)
    ToggleAlwaysOnTop(hMenu, wParam, lParam, msg, hwnd) {
       Critical
       
-      if !IDs.Has(wParam) || hMenu != IDs[wParam]
+      SC := wParam & 0xFFF0
+      if !(IDs.Has(SC) && IDs[SC] = hMenu)
          return
       
       ; Toggle the window's always-on-top state.
@@ -118,7 +118,7 @@ AddAlwaysOnTopToSystemMenu(hwnd, Remove := false)
       
       ; Get the menu item's state.
       
-      if !DllCall('User32.dll\GetMenuItemInfoW', 'Ptr', hMenu, 'UInt', wParam, 'Int', false, 'Ptr', MENUITEMINFO, 'Int')
+      if !DllCall('User32.dll\GetMenuItemInfoW', 'Ptr', hMenu, 'UInt', SC, 'Int', false, 'Ptr', MENUITEMINFO, 'Int')
          throw OSError('GetMenuItemInfoW failed.', -1, FormatError(A_LastError))
       MenuItemState := NumGet(MENUITEMINFO, 12, 'UInt')  ; fState
       
@@ -130,7 +130,7 @@ AddAlwaysOnTopToSystemMenu(hwnd, Remove := false)
          MenuItemState |= MFS_CHECKED
       
       NumPut 'UInt', MenuItemState, MENUITEMINFO, 12  ; fState
-      if !DllCall('User32.dll\SetMenuItemInfoW', 'Ptr', hMenu, 'UInt', wParam, 'Int', false, 'Ptr', MENUITEMINFO, 'Int')
+      if !DllCall('User32.dll\SetMenuItemInfoW', 'Ptr', hMenu, 'UInt', SC, 'Int', false, 'Ptr', MENUITEMINFO, 'Int')
          throw OSError('SetMenuItemInfoW failed.', -1, FormatError(A_LastError))
    }
    
