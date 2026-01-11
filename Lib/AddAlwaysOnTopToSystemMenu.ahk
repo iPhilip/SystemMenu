@@ -8,8 +8,8 @@
 ; Author: iPhilip
 ;
 ; Parameters:
-;   hwnd - handle of a window or an object with the hwnd property.
-;   Remove - boolean value that determines if the function adds or removes the menu item (and its separator). If omitted, it defaults to false.
+;   1. hwnd   - handle of a window or an object with the hwnd property.
+;   2. Remove - boolean value that determines if the function adds or removes the menu item (and its separator). If omitted, it defaults to false.
 ;
 ; Return value:
 ; The function returns true if the item (and separator) is added to the system menu and false if it's removed.
@@ -66,7 +66,7 @@ AddAlwaysOnTopToSystemMenu(hwnd, Remove := false)
    
    ID := IDs.Count ? Max(IDs*) + 0x0010 : 0x0010
    if ID = SC_SIZE
-      throw Error('Exceeded maximum identifier value.')
+      throw Error('Exceeded maximum identifier value.', -1)
    IDs[ID] := hMenu
    
    ; Get the window's current always-on-top state.

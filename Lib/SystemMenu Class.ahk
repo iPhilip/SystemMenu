@@ -276,7 +276,7 @@ class SystemMenu
          Flags := this.Class.MF_STRING
          ID := this.CallbackMap.Count ? Max(this.CallbackMap*) + 0x0010 : 0x0010
          if ID = this.Class.SC_SIZE
-            throw Error('Exceeded maximum identifier value.')
+            throw Error('Exceeded maximum identifier value.', -1)
          
          this.CallbackMap[ID] := Callback
          this.ItemsByPos.Push({ID: ID, Name: this.Strip(MenuItemName)})
@@ -313,7 +313,7 @@ class SystemMenu
          
          ID := this.CallbackMap.Count ? Max(this.CallbackMap*) + 0x0010 : 0x0010
          if ID = this.Class.SC_SIZE
-            throw Error('Exceeded maximum identifier value.')
+            throw Error('Exceeded maximum identifier value.', -1)
          this.CallbackMap[ID] := Callback
          
          ItemName := this.Strip(MenuItemName)
